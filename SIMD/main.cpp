@@ -1,6 +1,6 @@
-#include <iostream>
-#include <fstream>
 #include <cstring>
+#include <fstream>
+#include <iostream>
 
 #include "MyString.h"
 
@@ -8,13 +8,14 @@
 
 using namespace std;
 
-const char * data = "12345678901234567890123456789012345678901234567890123456789012345678901234567890";
+const char* data =
+    "12345678901234567890123456789012345678901234567890123456789012345678901234"
+    "567890";
 
-template<class Fun>
-size_t test(const Fun& f,size_t times,const char* str){
+template <class Fun>
+size_t test(const char* str, size_t times, const Fun& f) {
   auto start = boost::posix_time::microsec_clock::local_time();
-  for ( size_t i = 0; i < times; i++ )
-  {
+  for (size_t i = 0; i < times; i++) {
     f();
   }
   auto end = boost::posix_time::microsec_clock::local_time();
@@ -23,17 +24,16 @@ size_t test(const Fun& f,size_t times,const char* str){
   return d.total_nanoseconds();
 }
 
-int main(){
-  
-  size_t times =  10;
-  typedef char * CharPointer;
- 
+int main() {
+  size_t times = 10;
+  typedef char* CharPointer;
+
   fstream file("aaa.txt");
   std::vector<std::string> vstr;
-  while ( true ){
+  while (true) {
     std::string data;
     file >> data;
-    if ( !data.length() ){
+    if (!data.length()) {
       break;
     }
     vstr.push_back(data);
@@ -44,23 +44,21 @@ int main(){
   std::vector<size_t> v2(times * vstr.size());
 
   int index = 0;
-  size_t mine = test([&](){
-    for ( size_t i = 0; i < vstr.size(); i++ )
-    {
+  size_t mine = test("Mine ", times, [&]() {
+    for (size_t i = 0; i < vstr.size(); i++) {
       size_t l = Strlen(vstr[i].data());
       v1[index++] = l;
     }
-  }, times,"Mine ");
+  });
 
   index = 0;
-  size_t sys = test([&](){
-    for ( size_t i = 0; i < vstr.size(); i++ )
-    {
+  size_t sys = test("System ", times, [&]() {
+    for (size_t i = 0; i < vstr.size(); i++) {
       size_t l = ::strlen(vstr[i].data());
       v1[index++] = l;
     }
-  }, times,"System ");
-  
-  std::cout << sys*1.0 / mine << std::endl;
+  });
+
+  std::cout << sys * 1.0 / mine << std::endl;
   std::cin.get();
 }
